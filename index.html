@@ -148,12 +148,22 @@
     .grid-layout-1 div:nth-child(3) { grid-row: span 2; grid-column: span 2; }
     .grid-layout-1 div:nth-child(7) { grid-row: span 2; grid-column: span 2; }
 
-    /* Layout 3: Balanced Columns */
-    .grid-layout-2 {
-        grid-template-columns: repeat(2, 1fr);
-        grid-auto-rows: 120px;
+    /* Layout 3: Video Viewport */
+    .video-container {
+        width: 100%;
+        height: 100%;
+        min-height: 350px;
+        border-radius: 16px;
+        overflow: hidden;
+        background: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
-    .grid-layout-2 div:nth-child(odd) { grid-row: span 2; }
+    .video-container video {
+        max-width: 100%;
+        max-height: 100%;
+    }
 
     .photo-item {
         width: 100%;
@@ -288,7 +298,7 @@
         </div>
     </div>
 
-    <!-- SECTION 2: OUR STORY (DYNAMIC GRID) -->
+    <!-- SECTION 2: OUR STORY (DYNAMIC GRID/VIDEO) -->
     <div id="section-story" class="hidden-section max-w-xl mx-auto px-4 fade-in pt-4">
         <h2 class="text-3xl mb-4 text-[#ff4d6d]">Our Story 📖</h2>
         <div id="story-container" class="story-card">
@@ -297,9 +307,14 @@
                 <p id="pageDesc" class="text-xs text-gray-500 italic mt-1">Description</p>
             </div>
             
-            <!-- Dynamic Grid Area -->
-            <div id="photoGrid" class="photo-grid grow">
-                <!-- 12 photos will be injected here via JS -->
+            <!-- Content Area: Grid or Video -->
+            <div id="storyContent" class="grow flex flex-col">
+                <div id="photoGrid" class="photo-grid grow">
+                    <!-- Photos go here -->
+                </div>
+                <div id="videoContainer" class="video-container hidden grow">
+                    <!-- Video goes here -->
+                </div>
             </div>
 
             <div class="flex justify-between items-center mt-4">
@@ -373,13 +388,12 @@
             confettiBurst();
         }
 
-        // --- ENHANCED STORY LOGIC ---
+        // --- STORY LOGIC ---
         let currentStoryPage = 0;
 
-        /** * EDIT THESE ARRAYS TO CHANGE YOUR PHOTOS! 
-         * Simply put your image URLs inside the square brackets. 
-         * Each page can hold up to 12 images.
-         */
+        // Change this URL to your personal video link!
+        const videoUrl = "https://www.w3schools.com/html/mov_bbb.mp4"; 
+
         const photoSets = {
             0: [ // Chapter 1 Photos
                 "https://picsum.photos/seed/a1/400/600",
@@ -408,20 +422,6 @@
                 "https://picsum.photos/seed/b10/400/600",
                 "https://picsum.photos/seed/b11/400/600",
                 "https://picsum.photos/seed/b12/400/600"
-            ],
-            2: [ // Chapter 3 Photos
-                "https://picsum.photos/seed/c1/400/600",
-                "https://picsum.photos/seed/c2/400/600",
-                "https://picsum.photos/seed/c3/400/600",
-                "https://picsum.photos/seed/c4/400/600",
-                "https://picsum.photos/seed/c5/400/600",
-                "https://picsum.photos/seed/c6/400/600",
-                "https://picsum.photos/seed/c7/400/600",
-                "https://picsum.photos/seed/c8/400/600",
-                "https://picsum.photos/seed/c9/400/600",
-                "https://picsum.photos/seed/c10/400/600",
-                "https://picsum.photos/seed/c11/400/600",
-                "https://picsum.photos/seed/c12/400/600"
             ]
         };
 
@@ -429,17 +429,19 @@
             {
                 title: "Chapter 1: The Beginning",
                 desc: "Every great journey starts with a single step... and maybe a little awkwardness!",
+                type: "grid",
                 layoutClass: "grid-layout-0"
             },
             {
                 title: "Chapter 2: Sweet Memories",
                 desc: "The laughs, the dates, and the moments that defined us.",
+                type: "grid",
                 layoutClass: "grid-layout-1"
             },
             {
-                title: "Chapter 3: Forever & Always",
-                desc: "Looking forward to everything that hasn't happened yet.",
-                layoutClass: "grid-layout-2"
+                title: "Chapter 3: To Us ❤️",
+                desc: "A little video for my favorite person in the world.",
+                type: "video"
             }
         ];
 
@@ -456,26 +458,35 @@
 
         function updateStoryUI() {
             const grid = document.getElementById('photoGrid');
+            const vidCont = document.getElementById('videoContainer');
             const page = storyPages[currentStoryPage];
             
             document.getElementById('pageTitle').innerText = page.title;
             document.getElementById('pageDesc').innerText = page.desc;
             document.getElementById('pageIndicator').innerText = `${currentStoryPage + 1} / ${storyPages.length}`;
             
-            // Set Grid Style
-            grid.className = `photo-grid grow fade-in ${page.layoutClass}`;
-            
-            // Get the photos for the current chapter
-            const currentPhotos = photoSets[currentStoryPage] || [];
-            
-            grid.innerHTML = "";
-            // Always iterate 12 times to maintain grid structure
-            for (let i = 0; i < 12; i++) {
-                // Use actual photo if available, otherwise a placeholder
-                const imgUrl = currentPhotos[i] || `https://picsum.photos/seed/${currentStoryPage}_${i}/400/600`;
-                const div = document.createElement('div');
-                div.innerHTML = `<img src="${imgUrl}" class="photo-item" onclick="openLightbox('${imgUrl}')" onerror="this.src='https://via.placeholder.com/400x600?text=Love+Photo'" alt="Our Photo ${i+1}">`;
-                grid.appendChild(div);
+            if (page.type === "grid") {
+                grid.classList.remove('hidden');
+                vidCont.classList.add('hidden');
+                grid.className = `photo-grid grow fade-in ${page.layoutClass}`;
+                
+                const currentPhotos = photoSets[currentStoryPage] || [];
+                grid.innerHTML = "";
+                for (let i = 0; i < 12; i++) {
+                    const imgUrl = currentPhotos[i] || `https://picsum.photos/seed/${currentStoryPage}_${i}/400/600`;
+                    const div = document.createElement('div');
+                    div.innerHTML = `<img src="${imgUrl}" class="photo-item" onclick="openLightbox('${imgUrl}')" onerror="this.src='https://via.placeholder.com/400x600?text=Love+Photo'" alt="Photo">`;
+                    grid.appendChild(div);
+                }
+            } else {
+                grid.classList.add('hidden');
+                vidCont.classList.remove('hidden');
+                vidCont.innerHTML = `
+                    <video controls class="shadow-lg">
+                        <source src="${videoUrl}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                `;
             }
 
             document.getElementById('prevBtn').style.visibility = currentStoryPage === 0 ? 'hidden' : 'visible';
