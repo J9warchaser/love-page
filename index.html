@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Valentine's Day ❤️</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;600&family=Pacifico&display=swap');
+
+    body {
+        margin: 0;
+        font-family: 'Fredoka', sans-serif;
+        background: linear-gradient(135deg, #fff0f5, #ffe4e1);
+        text-align: center;
+        overflow-x: hidden;
+        color: #d6336c;
+        min-height: 100vh;
+    }
+
+    h1, h2, h3 {
+        font-family: 'Pacifico', cursive;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from {opacity: 0; transform: translateY(10px);}
+        to {opacity: 1; transform: translateY(0);}
+    }
+    
+    @keyframes floatUp {
+        0% {transform: translateY(0); opacity: 1;}
+        100% {transform: translateY(-100vh); opacity: 0;}
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+
+    .fade-in {
+        animation: fadeIn 0.6s ease-in-out forwards;
+    }
+
+    /* Floating Hearts Background */
+    .bg-heart {
+        position: fixed;
+        bottom: -10px;
+        font-size: 20px;
+        animation: floatUp 6s linear infinite;
+        z-index: -1;
+        opacity: 0.6;
+    }
+
+    /* Custom Button Styles */
+    .love-btn {
+        background: #ff4d6d;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 4px 15px rgba(255, 77, 109, 0.3);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Runaway Button Logic */
+    #noWrapper {
+        position: absolute;
+        transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        z-index: 40;
+        pointer-events: auto;
+    }
+
+    .no-tooltip {
+        position: absolute;
+        bottom: 120%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #fff;
+        color: #ff4d6d;
+        padding: 6px 12px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        white-space: nowrap;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        pointer-events: none;
+        border: 2px solid #ffe4e1;
+    }
+
+    /* Navigation Tabs */
+    .nav-tab {
+        cursor: pointer;
+        padding: 10px 15px;
+        border-radius: 20px;
+        transition: all 0.3s;
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+    .nav-tab.active {
+        background-color: white;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        color: #ff4d6d;
+        font-weight: bold;
+    }
+
+    .hidden-section {
+        display: none;
+    }
+
+    /* Story Card Styling */
+    .story-card {
+        background: white;
+        border-radius: 24px;
+        padding: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        min-height: 500px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* GRID STYLES FOR PHOTO ALBUM */
+    .photo-grid {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+    
+    /* Layout 1: Classic Masonry-ish */
+    .grid-layout-0 {
+        grid-template-columns: repeat(3, 1fr);
+        grid-auto-rows: 100px;
+    }
+    .grid-layout-0 div:nth-child(1) { grid-row: span 2; grid-column: span 2; }
+    
+    /* Layout 2: Scattered Mosaic */
+    .grid-layout-1 {
+        grid-template-columns: repeat(4, 1fr);
+        grid-auto-rows: 80px;
+    }
+    .grid-layout-1 div:nth-child(3) { grid-row: span 2; grid-column: span 2; }
+    .grid-layout-1 div:nth-child(7) { grid-row: span 2; grid-column: span 2; }
+
+    /* Layout 3: Balanced Columns */
+    .grid-layout-2 {
+        grid-template-columns: repeat(2, 1fr);
+        grid-auto-rows: 120px;
+    }
+    .grid-layout-2 div:nth-child(odd) { grid-row: span 2; }
+
+    .photo-item {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+    .photo-item:hover {
+        transform: scale(1.03);
+        z-index: 10;
+    }
+
+    /* Lightbox Styles */
+    #lightbox {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.9);
+        z-index: 100;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        cursor: zoom-out;
+    }
+    #lightbox img {
+        max-width: 95%;
+        max-height: 85vh;
+        border-radius: 10px;
+        box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+    }
+
+    /* Game Styles */
+    #game-container {
+        position: relative;
+        width: 100%;
+        height: 400px;
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        border: 3px solid #ffe4e1;
+        touch-action: none;
+        cursor: none;
+    }
+    .falling-heart {
+        position: absolute;
+        font-size: 30px;
+        user-select: none;
+    }
+    #basket {
+        position: absolute;
+        bottom: 10px;
+        width: 80px;
+        height: 50px;
+        font-size: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.1s ease-out;
+        pointer-events: none;
+        z-index: 10;
+    }
+
+    @media (max-width: 430px) {
+        h1 { font-size: 2.2rem !important; }
+        .nav-tab { padding: 8px 10px; font-size: 0.8rem; }
+    }
+</style>
+</head>
+
+<body class="pb-20">
+
+    <!-- Lightbox for Photos -->
+    <div id="lightbox" onclick="closeLightbox()">
+        <img id="lightboxImg" src="" alt="Zoomed Photo">
+    </div>
+
+    <!-- Navigation -->
+    <nav class="flex justify-center gap-2 md:gap-4 p-4 sticky top-0 z-50 bg-white/70 backdrop-blur-md mb-6 shadow-sm">
+        <div onclick="switchTab('home')" class="nav-tab active" id="tab-home">Home 🏠</div>
+        <div onclick="switchTab('story')" class="nav-tab" id="tab-story">Our Story 📖</div>
+        <div onclick="switchTab('game')" class="nav-tab" id="tab-game">Mini Game 🎮</div>
+    </nav>
+
+    <!-- SECTION 1: HOME & LETTER -->
+    <div id="section-home" class="max-w-xl mx-auto px-4 fade-in">
+        <h1 class="text-4xl mt-4 mb-2 text-[#ff4d6d]">Happy Valentine’s Day ❤️</h1>
+        <h2 class="text-lg md:text-xl mb-6 font-light text-gray-600">My love, Tenzing Dorjee!</h2>
+
+        <div class="bg-white/90 p-6 rounded-3xl shadow-lg text-left mb-8 relative overflow-hidden">
+            <h3 class="text-2xl mb-4 text-center">For You</h3>
+            <p class="mb-4 leading-relaxed text-sm md:text-base">
+                I built this little corner of the internet just for us — because loving you deserved its own website. It’s a little cheesy, a little funny, and completely made with love. Enjoy!
+            </p>
+            <p class="font-bold text-center mt-4 text-lg">
+                Ready for the big question? ❤️
+            </p>
+        </div>
+
+        <!-- THE RUNAWAY BUTTON SECTION -->
+        <div id="valentineSection" class="bg-white p-6 md:p-8 rounded-3xl shadow-2xl mb-8 border-4 border-pink-200 relative min-h-[450px] flex flex-col items-center">
+            <h3 class="text-2xl mb-4 text-[#ff4d6d] font-bold">Will you be my Valentine? 🌹</h3>
+            
+            <div id="buttonPlayground" class="relative w-full h-[300px] bg-pink-50/30 rounded-2xl border border-pink-100 overflow-hidden">
+                <button id="yesBtn" onclick="acceptValentine()" class="love-btn bg-green-500 hover:bg-green-600 text-xl px-10 py-3 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-[pulse_1.5s_infinite] transition-transform duration-300 z-30">
+                    YES! 😍
+                </button>
+                
+                <div id="noWrapper" style="left: 70%; top: 75%;">
+                    <button id="noBtn" onmouseover="dodge()" onclick="dodge()" class="love-btn bg-gray-400 hover:bg-gray-500 text-lg px-6 whitespace-nowrap">
+                        No 😢
+                        <div id="noTooltip" class="no-tooltip hidden">Nice try! 😜</div>
+                    </button>
+                </div>
+            </div>
+
+            <div id="yayMessage" class="hidden mt-6 p-4 bg-pink-100 rounded-2xl text-2xl font-bold text-[#ff4d6d] animate-bounce shadow-lg w-full">
+                YAY! You're mine, benchod! 🥰💖🎉
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div class="bg-white p-4 rounded-2xl shadow-md">
+                <h3 class="text-sm mb-1 text-gray-500 font-semibold">Days Together</h3>
+                <div class="text-xl font-bold text-[#ff4d6d]" id="counter">Calculating...</div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl shadow-md">
+                <h3 class="text-sm mb-1 text-gray-500 font-semibold">Love Note</h3>
+                <div id="note" class="italic text-[10px] md:text-xs text-gray-600">"Habang buhay kitang pipiliin. Mahal na mahal kita!"</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 2: OUR STORY (DYNAMIC GRID) -->
+    <div id="section-story" class="hidden-section max-w-xl mx-auto px-4 fade-in pt-4">
+        <h2 class="text-3xl mb-4 text-[#ff4d6d]">Our Story 📖</h2>
+        <div id="story-container" class="story-card">
+            <div id="story-header" class="mb-4">
+                <h4 id="pageTitle" class="text-xl font-bold text-[#ff4d6d]">Title</h4>
+                <p id="pageDesc" class="text-xs text-gray-500 italic mt-1">Description</p>
+            </div>
+            
+            <!-- Dynamic Grid Area -->
+            <div id="photoGrid" class="photo-grid grow">
+                <!-- 12 photos will be injected here via JS -->
+            </div>
+
+            <div class="flex justify-between items-center mt-4">
+                <button id="prevBtn" onclick="changeStoryPage(-1)" class="love-btn !bg-gray-200 !text-gray-600 !px-6 !py-2 text-sm">Previous</button>
+                <span id="pageIndicator" class="text-sm text-gray-400 font-bold">1 / 3</span>
+                <button id="nextBtn" onclick="changeStoryPage(1)" class="love-btn !px-8 !py-2 text-sm">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 3: MINI GAME -->
+    <div id="section-game" class="hidden-section max-w-xl mx-auto px-4 fade-in pt-4">
+        <h2 class="text-3xl mb-2 text-[#ff4d6d]">Catch the Love 🎮</h2>
+        <p class="text-sm text-gray-600 mb-4">Move the basket to catch the falling hearts!</p>
+        <div class="flex justify-between mb-2 font-bold px-2">
+            <span>Score: <span id="score">0</span></span>
+            <span>Time: <span id="timer">30</span>s</span>
+        </div>
+        <div id="game-container">
+            <div id="basket" class="hidden">🧺</div>
+            <div id="game-start-overlay" class="absolute inset-0 bg-white/80 z-20 flex flex-col items-center justify-center p-6">
+                <p class="mb-4 text-center">Drag or move your mouse to catch hearts!</p>
+                <button onclick="startGame()" class="love-btn">Start Game!</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isValentineAccepted = false;
+        const noMessages = ["Nice try! 😜", "Too slow!", "Nope! ✋", "Try again!", "You can't!", "💖", "Still no!"];
+
+        function switchTab(tabId) {
+            ['home', 'story', 'game'].forEach(id => {
+                document.getElementById(`section-${id}`).classList.add('hidden-section');
+                document.getElementById(`tab-${id}`).classList.remove('active');
+            });
+            document.getElementById(`section-${tabId}`).classList.remove('hidden-section');
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            
+            if (tabId === 'story') {
+                currentStoryPage = 0;
+                updateStoryUI();
+            }
+            if (tabId !== 'game') resetGame();
+        }
+
+        function dodge() {
+            if (isValentineAccepted) return;
+            const noWrapper = document.getElementById('noWrapper');
+            const tooltip = document.getElementById('noTooltip');
+            const playground = document.getElementById('buttonPlayground');
+            const areaWidth = playground.offsetWidth;
+            const areaHeight = playground.offsetHeight;
+            const btnWidth = noWrapper.offsetWidth;
+            const btnHeight = noWrapper.offsetHeight;
+            const randomX = Math.floor(Math.random() * (areaWidth - btnWidth));
+            const randomY = Math.floor(Math.random() * (areaHeight - btnHeight));
+            noWrapper.style.left = `${randomX}px`;
+            noWrapper.style.top = `${randomY}px`;
+            noWrapper.style.transform = `none`; 
+            tooltip.innerText = noMessages[Math.floor(Math.random() * noMessages.length)];
+            tooltip.classList.remove('hidden');
+        }
+
+        function acceptValentine() {
+            isValentineAccepted = true;
+            document.getElementById('noWrapper').style.display = 'none';
+            const yesBtn = document.getElementById('yesBtn');
+            yesBtn.innerText = "You better! lol ❤️";
+            document.getElementById('yayMessage').classList.remove('hidden');
+            confettiBurst();
+        }
+
+        // --- ENHANCED STORY LOGIC ---
+        let currentStoryPage = 0;
+
+        /** * EDIT THESE ARRAYS TO CHANGE YOUR PHOTOS! 
+         * Simply put your image URLs inside the square brackets. 
+         * Each page can hold up to 12 images.
+         */
+        const photoSets = {
+            0: [ // Chapter 1 Photos
+                "https://picsum.photos/seed/a1/400/600",
+                "https://picsum.photos/seed/a2/400/600",
+                "https://picsum.photos/seed/a3/400/600",
+                "https://picsum.photos/seed/a4/400/600",
+                "https://picsum.photos/seed/a5/400/600",
+                "https://picsum.photos/seed/a6/400/600",
+                "https://picsum.photos/seed/a7/400/600",
+                "https://picsum.photos/seed/a8/400/600",
+                "https://picsum.photos/seed/a9/400/600",
+                "https://picsum.photos/seed/a10/400/600",
+                "https://picsum.photos/seed/a11/400/600",
+                "https://picsum.photos/seed/a12/400/600"
+            ],
+            1: [ // Chapter 2 Photos
+                "https://picsum.photos/seed/b1/400/600",
+                "https://picsum.photos/seed/b2/400/600",
+                "https://picsum.photos/seed/b3/400/600",
+                "https://picsum.photos/seed/b4/400/600",
+                "https://picsum.photos/seed/b5/400/600",
+                "https://picsum.photos/seed/b6/400/600",
+                "https://picsum.photos/seed/b7/400/600",
+                "https://picsum.photos/seed/b8/400/600",
+                "https://picsum.photos/seed/b9/400/600",
+                "https://picsum.photos/seed/b10/400/600",
+                "https://picsum.photos/seed/b11/400/600",
+                "https://picsum.photos/seed/b12/400/600"
+            ],
+            2: [ // Chapter 3 Photos
+                "https://picsum.photos/seed/c1/400/600",
+                "https://picsum.photos/seed/c2/400/600",
+                "https://picsum.photos/seed/c3/400/600",
+                "https://picsum.photos/seed/c4/400/600",
+                "https://picsum.photos/seed/c5/400/600",
+                "https://picsum.photos/seed/c6/400/600",
+                "https://picsum.photos/seed/c7/400/600",
+                "https://picsum.photos/seed/c8/400/600",
+                "https://picsum.photos/seed/c9/400/600",
+                "https://picsum.photos/seed/c10/400/600",
+                "https://picsum.photos/seed/c11/400/600",
+                "https://picsum.photos/seed/c12/400/600"
+            ]
+        };
+
+        const storyPages = [
+            {
+                title: "Chapter 1: The Beginning",
+                desc: "Every great journey starts with a single step... and maybe a little awkwardness!",
+                layoutClass: "grid-layout-0"
+            },
+            {
+                title: "Chapter 2: Sweet Memories",
+                desc: "The laughs, the dates, and the moments that defined us.",
+                layoutClass: "grid-layout-1"
+            },
+            {
+                title: "Chapter 3: Forever & Always",
+                desc: "Looking forward to everything that hasn't happened yet.",
+                layoutClass: "grid-layout-2"
+            }
+        ];
+
+        function openLightbox(url) {
+            const lightbox = document.getElementById('lightbox');
+            const img = document.getElementById('lightboxImg');
+            img.src = url;
+            lightbox.style.display = 'flex';
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').style.display = 'none';
+        }
+
+        function updateStoryUI() {
+            const grid = document.getElementById('photoGrid');
+            const page = storyPages[currentStoryPage];
+            
+            document.getElementById('pageTitle').innerText = page.title;
+            document.getElementById('pageDesc').innerText = page.desc;
+            document.getElementById('pageIndicator').innerText = `${currentStoryPage + 1} / ${storyPages.length}`;
+            
+            // Set Grid Style
+            grid.className = `photo-grid grow fade-in ${page.layoutClass}`;
+            
+            // Get the photos for the current chapter
+            const currentPhotos = photoSets[currentStoryPage] || [];
+            
+            grid.innerHTML = "";
+            // Always iterate 12 times to maintain grid structure
+            for (let i = 0; i < 12; i++) {
+                // Use actual photo if available, otherwise a placeholder
+                const imgUrl = currentPhotos[i] || `https://picsum.photos/seed/${currentStoryPage}_${i}/400/600`;
+                const div = document.createElement('div');
+                div.innerHTML = `<img src="${imgUrl}" class="photo-item" onclick="openLightbox('${imgUrl}')" onerror="this.src='https://via.placeholder.com/400x600?text=Love+Photo'" alt="Our Photo ${i+1}">`;
+                grid.appendChild(div);
+            }
+
+            document.getElementById('prevBtn').style.visibility = currentStoryPage === 0 ? 'hidden' : 'visible';
+            document.getElementById('nextBtn').innerText = currentStoryPage === storyPages.length - 1 ? 'Finish ❤️' : 'Next';
+        }
+
+        function changeStoryPage(dir) {
+            currentStoryPage += dir;
+            if (currentStoryPage < 0) currentStoryPage = 0;
+            if (currentStoryPage >= storyPages.length) {
+                switchTab('home');
+                return;
+            }
+            updateStoryUI();
+        }
+
+        // --- MINI GAME LOGIC ---
+        let score = 0, timeLeft = 30, gameActive = false, gameTimer, spawnTimer;
+        const basket = document.getElementById('basket');
+        const gameContainer = document.getElementById('game-container');
+
+        const moveBasket = (e) => {
+            if (!gameActive) return;
+            const containerRect = gameContainer.getBoundingClientRect();
+            let x;
+            if (e.type === 'touchmove') {
+                x = e.touches[0].clientX - containerRect.left;
+            } else {
+                x = e.clientX - containerRect.left;
+            }
+            const halfWidth = basket.offsetWidth / 2;
+            x = Math.max(halfWidth, Math.min(x, containerRect.width - halfWidth));
+            basket.style.left = (x - halfWidth) + 'px';
+        };
+
+        gameContainer.addEventListener('mousemove', moveBasket);
+        gameContainer.addEventListener('touchmove', moveBasket);
+
+        function startGame() {
+            score = 0; timeLeft = 30; gameActive = true;
+            document.getElementById('score').innerText = score;
+            document.getElementById('timer').innerText = timeLeft;
+            document.getElementById('game-start-overlay').classList.add('hidden');
+            basket.classList.remove('hidden');
+            
+            gameTimer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').innerText = timeLeft;
+                if (timeLeft <= 0) endGame();
+            }, 1000);
+            spawnTimer = setInterval(spawnHeart, 600);
+        }
+
+        function spawnHeart() {
+            if (!gameActive) return;
+            const heart = document.createElement('div');
+            heart.className = 'falling-heart';
+            heart.innerHTML = ['❤️', '💖', '💝', '💕'][Math.floor(Math.random() * 4)];
+            heart.style.left = Math.random() * (gameContainer.clientWidth - 40) + 'px';
+            heart.style.top = '-50px';
+            gameContainer.appendChild(heart);
+
+            let pos = -50;
+            const fall = setInterval(() => {
+                if (!gameActive) { clearInterval(fall); heart.remove(); return; }
+                pos += 4;
+                heart.style.top = pos + 'px';
+
+                const heartRect = heart.getBoundingClientRect();
+                const basketRect = basket.getBoundingClientRect();
+
+                if (
+                    heartRect.bottom >= basketRect.top &&
+                    heartRect.right >= basketRect.left &&
+                    heartRect.left <= basketRect.right &&
+                    heartRect.top <= basketRect.bottom
+                ) {
+                    score++;
+                    document.getElementById('score').innerText = score;
+                    clearInterval(fall);
+                    heart.remove();
+                }
+
+                if (pos > gameContainer.clientHeight) {
+                    clearInterval(fall);
+                    heart.remove();
+                }
+            }, 20);
+        }
+
+        function endGame() {
+            gameActive = false;
+            clearInterval(gameTimer);
+            clearInterval(spawnTimer);
+            basket.classList.add('hidden');
+            const overlay = document.getElementById('game-start-overlay');
+            overlay.innerHTML = `
+                <h3 class="text-2xl mb-2 text-[#ff4d6d]">Time's Up!</h3>
+                <p class="mb-4">You caught ${score} hearts in your basket!</p>
+                <button onclick="startGame()" class="love-btn">Play Again</button>
+            `;
+            overlay.classList.remove('hidden');
+        }
+
+        function resetGame() {
+            gameActive = false;
+            clearInterval(gameTimer);
+            clearInterval(spawnTimer);
+            basket.classList.add('hidden');
+            document.getElementById('game-start-overlay').classList.remove('hidden');
+        }
+
+        // Shared Logic
+        function createHeart() {
+            const heart = document.createElement("div");
+            heart.classList.add("bg-heart");
+            heart.innerHTML = "❤️";
+            heart.style.left = Math.random() * 100 + "vw";
+            heart.style.fontSize = (Math.random() * 10 + 15) + "px";
+            heart.style.animationDuration = (Math.random() * 3 + 3) + "s";
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 6000);
+        }
+        setInterval(createHeart, 800);
+
+        function confettiBurst() {
+            for(let i=0; i<40; i++) setTimeout(createHeart, i * 50);
+        }
+
+        function updateCounter() {
+            const startDate = new Date("2025-03-20");
+            const diff = new Date() - startDate;
+            document.getElementById("counter").innerHTML = (diff < 0) ? "Soon! ✨" : Math.floor(diff / 86400000) + " Days";
+        }
+        updateCounter();
+        updateStoryUI();
+    </script>
+</body>
+</html>
